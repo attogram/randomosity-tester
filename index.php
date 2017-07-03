@@ -2,11 +2,6 @@
 <html><head><title>Testing SQLite ORDER BY RANDOM()</title>
 <meta charset="utf-8" />
 <meta name="viewport" content="initial-scale=1" />
-<?php /* 
-if( isset($_GET['run']) ) {
-   print '<meta http-equiv="refresh" content="1">';
-} */
-?>
 <style>
 body {
    background-color:white; 
@@ -16,8 +11,8 @@ body {
 }
 h1 { font-size:150%; margin:0px 0px 5px 0px; padding:0px; }
 h2 { font-size:95%; font-weight:normal; margin:0px; padding:0px; }
-a { text-decoration:none; color:black; background-color:#ffb; }
-a:visited { color:black; background-color:#ffa; }
+a { text-decoration:none; color:darkblue; background-color:#e8edd3; }
+a:visited { color:darkblue; background-color:#e8edd3; }
 a:hover { background-color:yellow; color:black; }
 ul { margin:0px; }
 .results {
@@ -34,7 +29,7 @@ ul { margin:0px; }
 }
 .datab {
    display:inline-block;
-   background-color:yellow;
+   background-color:salmon;
    color:black;
    padding-left:10px
    padding-right:10px;
@@ -86,11 +81,6 @@ if( isset($_GET['a']) ) {
 ?>
 <div style="float:right;"><a href="./#about">&nbsp;About&nbsp;</a> &nbsp; <a href="./">&nbsp;Refresh&nbsp;</a></div>
 <h1>Testing SQLite ORDER BY RANDOM()</h1>
-<?php /*
-if( isset($_GET['run']) ) {
-   print '<p><a href="./">STOP AUTO RUN</a></p>';
- */
-?>
 <div class="results"><?php 
 
 $distribution_chart = $random->display_distribution();
@@ -103,22 +93,23 @@ print '<span style="font-size:130%; font-weight:bold;"><a href="./?run=1"
 > +50  </a> <a href="./?run=100"
 > +100</a> <a href="./?run=500"
 > +500</a> <a href="./?run=1000"
->+1000</a></span><br />';
-print '<br />Table size      : <b>' . number_format(@$info['class_size']) . ' rows</b>';
-print '<br /># Data points   : <b>' . number_format(@$info['data_sum']) . '</b>';
-print '<br /># Frequencies   : <b>' . number_format($random->frequencies_count) . '</b>';
-print '<br />Freq Hi/Lo/Range: <b>' 
+>+1000</a></span><br />'
+. '<br />Table size      : <b>' . number_format(@$info['class_size']) . ' rows</b>'
+. '<br /># Data points   : <b>' . number_format(@$info['data_sum']) . '</b>'
+. '<br /># Frequencies   : <b>' . number_format($random->frequencies_count) . '</b>'
+. '<br />Freq Hi/Lo/Range: <b>' 
    . number_format($random->highest_frequency) 
    . ' / ' . number_format($random->lowest_frequency) 
    . ' / ' . number_format( $random->highest_frequency - $random->lowest_frequency )
-   . '</b>';
-print '<br />Rows Hi/Lo/Range: <b>' 
+   . '</b>'
+. '<br />Rows Hi/Lo/Range: <b>' 
    . number_format($random->highest_count) 
    . ' / ' . number_format($random->lowest_count) 
    . ' / ' . number_format( $random->highest_count - $random->lowest_count )
-   . '</b>';
-   
-print '<br /><br />' . $distribution_chart;
+   . '</b>'
+. '<br /><br />' 
+. $distribution_chart
+;
 
 ?>
 </div>
@@ -162,14 +153,12 @@ and the number of rows for each frequency present.
 <p><a href="#top">Back to top</a></p>
 
 <footer>
-
 <p><hr /></p>
-
-</footer>
-
+<small>
 <p>SQL count: <?php print $random->sql_count; ?></p>
-<p>Fork this: <a href="https://github.com/attogram/random-sqlite-test">https://github.com/attogram/random-sqlite-test</a></p>
-
+<p>Github: <a href="https://github.com/attogram/random-sqlite-test">random-sqlite-test v<?php print __RST__; ?></a></p>
+</small>
+</footer>
 </body>
 </html>
 

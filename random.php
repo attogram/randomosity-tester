@@ -1,5 +1,7 @@
 <?php
-// Random
+// Random SQLite Test
+
+define('__RST__', '0.0.2');
 
 class db {
 
@@ -205,29 +207,6 @@ LIMIT 1';
         return TRUE;
     }
 
-/*    function display_results() {
-        $count = 0;
-        $display = '<div class="results">';
-        foreach( $this->get_test_table() as $data ) {
-            $count++;
-            $width = $data['frequency'];
-            $display .= ''
-                . '<div class="datah">' 
-                . $data['id']
-                . '</div><div class="datab" style="width:' . $width . 'px;">' 
-                . $data['frequency'] . '</div>'
-                . "\n"
-                ;
-            if( $count % 35    == 0 ) {
-                $display .= '</div><div class="results">';
-            }
-        }
-        $display .= '</div>';
-        $display = preg_replace('#<div class="results"></div>$#','',$display);
-        return $display;
-        //return print_r($this->get_test_table(),1);
-    } */
-
     function get_total_data_points() {
         $data = $this->query_as_array('
             SELECT SUM(frequency) AS frequency FROM test
@@ -240,8 +219,8 @@ LIMIT 1';
 
     function display_distribution() {
         $display = ''
-            . '<div class="datah" style="background-color:darkgrey; color:black;"> Frequency </div>'
-            . '<div class="datab" style="background-color:lightgrey;color:black;"> Rows      </div>'
+            . '<div class="datah" style="background-color:darkgrey; color:black; border:1px solid white;"> Frequency </div>'
+            . '<div class="datab" style="background-color:darkgrey; color:black; border:1px solid white;"> Rows      </div>'
             . '<br />';
         foreach( $this->get_distribution() as $dist ) {
             $cwidth = 1 * $dist['count'];
