@@ -12,14 +12,15 @@ class utils {
     }
 
     function start_timer( $name ) {
-        $this->timer[$name] = microtime();
+        $this->timer[$name] = microtime(1);
     }
     
     function end_timer( $name ){
         if( !isset($this->timer[$name]) ) {
-            return 0;
+            $this->timer[$name] = 0;
+			return;
         }
-        return $this->timer[$name] = microtime() - $this->timer[$name];
+        $this->timer[$name] = microtime(1) - $this->timer[$name];		
     }
 
 }

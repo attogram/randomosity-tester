@@ -2,7 +2,6 @@
 
 require_once( __DIR__.'/random.php' );
 $random = new random();
-$run = 0;
 
 if( isset($_GET['run']) ) {
    $run = (int)$_GET['run'];
@@ -103,15 +102,22 @@ print '<span style="font-size:130%; font-weight:bold;"><a href="./?run=1"
 . $distribution_chart
 ;
 
+
+$get_data  = isset($random->timer['get_data'])  ? number_format($random->timer['get_data'],  10) : '0';
+$save_data = isset($random->timer['save_data']) ? number_format($random->timer['save_data'], 10) : '0';
+$run = isset($run) ? $run : '0';
 ?>
 
 SQL Test count: <?php print $run; ?> runs
-SQL Test time : <?php 
-    print isset($random->timer['get_data']) ? $random->timer['get_data'] : '0';
+Avg per SQL   : <?php 
+	if( isset($run) && $run > 0 ) {
+		print number_format( ($get_data / $run), 10);
+	} else {
+		print '0';
+	}
 ?> seconds
-Data Save time: <?php 
-    print isset($random->timer['save_data']) ? $random->timer['save_data'] : '0';
-?> seconds
+SQL Test time : <?php print $get_data; ?> seconds
+Data Save time: <?php print $save_data; ?> seconds
 
 </div>
 
@@ -163,7 +169,9 @@ href="?restart=100000"> 100,000</a> rows
 <p><a href="#top">Back to top</a></p>
 <p>SQL count: <?php print $random->sql_count; ?></p>
 <p>Hosted by: <a href="//<?php print $_SERVER['SERVER_NAME']; ?>/"><?php print $_SERVER['SERVER_NAME']; ?></a></p>
-<p>Page generated in <?php print $random->end_timer('page'); ?> seconds</p>
+<p>Page generated in <?php 
+	$random->end_timer('page');
+	print number_format($random->timer['page'], 10); ?> seconds</p>
 </footer>
 </body>
 </html>
