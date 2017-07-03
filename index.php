@@ -1,3 +1,26 @@
+<?php
+
+require_once( __DIR__.'/random.php' );
+$random = new random();
+$run = 0;
+
+if( isset($_GET['run']) ) {
+   $run = (int)$_GET['run'];
+   if( !$run || !is_int($run) || $run > 1000 ) { $run = 1; }
+   $random->add_more_random( $run );
+}
+
+if( isset($_GET['restart']) ) {
+    $restart = (int)$_GET['restart'];
+    if( !$restart || !is_int($restart) || $restart > 100000 || $restart < 1 ) { 
+        $restart = $random->default_table_size;
+    }
+    $random->delete_test_table();
+    $random->create_test_table( $restart );
+}
+?>
+
+
 <!doctype html>
 <html><head><title>Testing SQLite ORDER BY RANDOM()</title>
 <meta charset="utf-8" />
@@ -45,26 +68,6 @@ ul { margin:0px; }
 .pre { white-space:pre; font-family:monospace; font-size:120%; }
 </style>
 </head><body><a name="top"></a>
-<?php
-
-require_once( __DIR__.'/random.php' );
-$random = new random();
-
-if( isset($_GET['run']) ) {
-   $run = (int)$_GET['run'];
-   if( !$run || !is_int($run) || $run > 1000 ) { $run = 1; }
-   $random->add_more_random( $run );
-}
-
-if( isset($_GET['restart']) ) {
-	$restart = (int)$_GET['restart'];
-	if( !$restart || !is_int($restart) || $restart > 100000 || $restart < 1 ) { 
-		$restart = $random->default_table_size;
-	}
-	$random->delete_test_table();
-	$random->create_test_table( $restart );
-}
-?>
 <div style="float:right;"><a href="./#about">&nbsp;About&nbsp;</a> &nbsp; <a href="./">&nbsp;Refresh&nbsp;</a></div>
 <h1>Testing SQLite ORDER BY RANDOM()</h1>
 <div class="results"><?php 
@@ -101,6 +104,15 @@ print '<span style="font-size:130%; font-weight:bold;"><a href="./?run=1"
 ;
 
 ?>
+
+SQL Test count: <?php print $run; ?> runs
+SQL Test time : <?php 
+    print isset($random->timer['get_data']) ? $random->timer['get_data'] : '0';
+?> seconds
+Data Save time: <?php 
+    print isset($random->timer['save_data']) ? $random->timer['save_data'] : '0';
+?> seconds
+
 </div>
 
 <p><hr /></p>
@@ -130,14 +142,14 @@ href="?restart=100000"> 100,000</a> rows
 <p>The test table is defined as:</p>
 <span class="pre"><?php print $random->table[1]; ?> </span>
 
-<p>More test data is added everytime you click a <span style="background-color:#ff9;">&nbsp;+&nbsp;</span> number button above.</p>
+<p>Add more test data by clicking a <span style="background-color:#e8edd3;">&nbsp;+&nbsp;</span> number button above.</p>
 
-<p>The test SQL call is:</p>
+<p>Each data point is individually generated via the SQL call:</p>
 <span class="pre"><?php print $random->method[1]; ?> </span>
 
 <p>A <em>Frequency of Frequencies</em> chart displays:
 <ul>
-<li>Frequencies: the list of unique frequencies (the number of times a row was randomly selected)
+<li>Frequency: the list of unique frequencies (the number of times a row was randomly selected)
 <li>Rows: the number of rows for each frequency present</li>
 </ul>
 </p>
@@ -150,6 +162,8 @@ href="?restart=100000"> 100,000</a> rows
 <p><hr /></p>
 <p><a href="#top">Back to top</a></p>
 <p>SQL count: <?php print $random->sql_count; ?></p>
+<p>Hosted by: <a href="//<?php print $_SERVER['SERVER_NAME']; ?>/"><?php print $_SERVER['SERVER_NAME']; ?></a></p>
+<p>Page generated in <?php print $random->end_timer('page'); ?> seconds</p>
 </footer>
 </body>
 </html>

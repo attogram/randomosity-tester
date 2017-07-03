@@ -1,9 +1,30 @@
 <?php
 // Random SQLite Test
 
-define('__RST__', '0.0.5');
+define('__RST__', '0.0.6');
 
-class db {
+class utils {
+    
+    var $timer;
+
+    function notice( $msg ) {
+        print '<div class="notice pre">' . print_r($msg,1) . '</div>';
+    }
+
+    function start_timer( $name ) {
+        $this->timer[$name] = microtime();
+    }
+    
+    function end_timer( $name ){
+        if( !isset($this->timer[$name]) ) {
+            return 0;
+        }
+        return $this->timer[$name] = microtime() - $this->timer[$name];
+    }
+
+}
+
+class db extends utils {
 
     var $db;
     var $database_name;
@@ -57,7 +78,7 @@ class db {
         $this->sql_count++;
         return TRUE;
     }
-    
+
     function vacuum() {
         if( $this->query_as_bool('VACUUM') ) {
             return TRUE;
@@ -84,7 +105,7 @@ class db {
 
     function create_test_table( $size='' ) {
         if( !$size ) { $size = 10; }
-		if( $size > 100000 ) { $size = 100000; }
+        if( $size > 100000 ) { $size = 100000; }
         if ( !$this->query_as_bool( $this->table[1] ) ) {
             $this->notice('ERROR creating table: ' . $this->table[1]);
             return FALSE;
@@ -151,17 +172,19 @@ class random extends db {
     var $lowest_frequency;
     var $lowest_count;
     var $frequencies_count;
-	var $frequencies_average;
-	var $default_table_size;
+    var $frequencies_average;
+    var $default_table_size;
 
     function __construct() {
 
-		set_time_limit(30);
-					
+        $this->start_timer('page');
+
+        set_time_limit(30);
+
         $this->database_name = __DIR__ . '/db/test.sqlite';
 
-		$this->default_table_size = 100;
-		
+        $this->default_table_size = 100;
+        
         $this->method[1] = 'SELECT id
 FROM test
 ORDER BY RANDOM()
@@ -171,16 +194,18 @@ LIMIT 1';
   'frequency' INTEGER DEFAULT '0'
 )";
 
-		$this->query_as_bool('PRAGMA synchronous=OFF;'); // do not wait for disk writes
+        $this->query_as_bool('PRAGMA synchronous=OFF;'); // do not wait for disk writes
 
-		$this->query_as_bool('PRAGMA count_changes=OFF;'); // do not do callback to count changes per query
+        $this->query_as_bool('PRAGMA count_changes=OFF;'); // do not do callback to count changes per query
 
-	} // end __construct()
+    } // end __construct()
 
     function add_more_random( $size=1 ) {
         if( !$size || !is_int($size) ) { $size = 1; }
         if( $size > 1000 ) { $size = 1000; }
         $hits = array();
+
+        $this->start_timer('get_data');
         for ($i = 1; $i <= $size; $i++) {
             $hit = $this->query_as_array( $this->method[1] );
             if( !$hit || !isset($hit[0]['id']) ) {
@@ -189,6 +214,9 @@ LIMIT 1';
             }
             $hits[] = $hit[0]['id'];
         }
+        $this->end_timer('get_data');
+
+        $this->start_timer('save_data');
         $freqs = array(); // array of id=>frequency 
         foreach( $hits as $hit ) {
             if( isset($freqs[$hit]) ) { 
@@ -208,6 +236,7 @@ LIMIT 1';
         }
         $this->commit();
         $this->vacuum();
+        $this->end_timer('save_data');
         return TRUE;
     }
 
@@ -253,7 +282,7 @@ LIMIT 1';
             ORDER BY frequency DESC
         ');
         if( !$dist ) { return array(); }
-        
+
         $flow = $fhigh = $ftotal = NULL;
         $clow = $chigh = $ctotal = NULL;
         foreach( $dist as $d ) {
@@ -265,23 +294,19 @@ LIMIT 1';
             if( $d['count'] > $chigh ) { $chigh = $d['count']; }
             if( $d['frequency'] < $flow ) { $flow = $d['frequency']; }
             if( $d['count'] < $clow ) { $clow = $d['count']; }
-			$ftotal += $d['frequency'];
-			$ctotal += $d['count'];
+            $ftotal += $d['frequency'];
+            $ctotal += $d['count'];
         }
         $this->highest_frequency = $fhigh;
         $this->highest_count = $chigh;
         $this->lowest_frequency = $flow;
         $this->lowest_count = $clow;
         $this->frequencies_count = sizeof($dist);
-		
-		$this->frequencies_average = round($ftotal / $this->frequencies_count, 2);
-		$this->count_average = round($ctotal / $this->frequencies_count, 2);
-		
-        return $dist;
-    }
 
-    function notice( $msg ) {
-        print '<div class="notice pre">' . print_r($msg,1) . '</div>';
+        $this->frequencies_average = round($ftotal / $this->frequencies_count, 2);
+        $this->count_average = round($ctotal / $this->frequencies_count, 2);
+
+        return $dist;
     }
 
 }
