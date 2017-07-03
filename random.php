@@ -1,7 +1,7 @@
 <?php
 // Random SQLite Test
 
-define('__RST__', '0.0.2');
+define('__RST__', '0.0.4');
 
 class db {
 
@@ -151,13 +151,16 @@ class random extends db {
     var $lowest_frequency;
     var $lowest_count;
     var $frequencies_count;
+	var $default_table_size;
 
     function __construct() {
 
 		set_time_limit(30);
 					
-        $this->database_name = __DIR__ . '/active/test.sqlite';
+        $this->database_name = __DIR__ . '/db/test.sqlite';
 
+		$this->default_table_size = 100;
+		
         $this->method[1] = 'SELECT id
 FROM test
 ORDER BY RANDOM()
@@ -219,8 +222,8 @@ LIMIT 1';
 
     function display_distribution() {
         $display = ''
-            . '<div class="datah" style="background-color:darkgrey; color:black; border:1px solid white;"> Frequency </div>'
-            . '<div class="datab" style="background-color:darkgrey; color:black; border:1px solid white;"> Rows      </div>'
+            . '<div class="datah" style="background-color:lightgrey; color:black; border:1px solid white;"> Frequency </div>'
+            . '<div class="datab" style="background-color:lightgrey; color:black; border:1px solid white;"> Rows      </div>'
             . '<br />';
         foreach( $this->get_distribution() as $dist ) {
             $cwidth = 1 * $dist['count'];

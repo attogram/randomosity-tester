@@ -51,32 +51,18 @@ require_once( __DIR__.'/random.php' );
 $random = new random();
 
 if( isset($_GET['run']) ) {
-   $nhits = (int)$_GET['run'];
-   if( !$nhits || !is_int($nhits) || $nhits > 1000 ) { $nhits = 1000; }
-   $hit = $random->add_more_random( $nhits );
+   $run = (int)$_GET['run'];
+   if( !$run || !is_int($run) || $run > 1000 ) { $run = 1; }
+   $random->add_more_random( $run );
 }
 
-if( isset($_GET['a']) ) {
-   switch( $_GET['a'] ) {
-   
-      case 'erase': // clear all data
-         $random->delete_all_data();
-         break;
-
-      case 'delete': // DROP TABLE test
-         $random->delete_test_table();
-         break;
-
-      case 'create': // Create Test Table
-         $size = isset($_GET['size']) ? $_GET['size'] : 10;
-         if( !$size ) { $size = 10; }
-         $random->create_test_table( $size );
-         break;
-
-      default:
-         print '<p>ERROR: invalid input</p>';
-         break;
-   }
+if( isset($_GET['restart']) ) {
+	$restart = (int)$_GET['restart'];
+	if( !$restart || !is_int($restart) || $restart > 100000 || $restart < 1 ) { 
+		$restart = $random->default_table_size;
+	}
+	$random->delete_test_table();
+	$random->create_test_table( $restart );
 }
 ?>
 <div style="float:right;"><a href="./#about">&nbsp;About&nbsp;</a> &nbsp; <a href="./">&nbsp;Refresh&nbsp;</a></div>
@@ -114,27 +100,26 @@ print '<span style="font-size:130%; font-weight:bold;"><a href="./?run=1"
 ?>
 </div>
 
-<br /><br />
+<p><hr /></p>
 
-<div class="results"><a href="?a=erase">Erase all data</a>     <a href="?a=delete">Delete table</a>
-<br />New table: <a 
-href="?a=create&size=2"> 2 </a> <a 
-href="?a=create&size=5"> 5 </a> <a 
-href="?a=create&size=10"> 10</a> <a 
-href="?a=create&size=25"> 25</a> <a 
-href="?a=create&size=50"> 50</a> <a 
-href="?a=create&size=100"> 100</a> <a 
-href="?a=create&size=250"> 250</a> <a 
-href="?a=create&size=500"> 500</a> <a 
-href="?a=create&size=1000"> 1,000</a> <a 
-href="?a=create&size=10000"> 10,000</a> <a 
-href="?a=create&size=100000"> 100,000</a> rows
+<div class="pre">Restart test with: 
+<a 
+href="?restart=2"> 2 </a> <a 
+href="?restart=5"> 5 </a> <a 
+href="?restart=10"> 10</a> <a 
+href="?restart=25"> 25</a> <a 
+href="?restart=50"> 50</a> <a 
+href="?restart=100"> 100</a> <a 
+href="?restart=250"> 250</a> <a 
+href="?restart=500"> 500</a> <a 
+href="?restart=1000"> 1,000</a> <a 
+href="?restart=10000"> 10,000</a> <a 
+href="?restart=100000"> 100,000</a> rows
 </div>
 
 
-<br /><br /><br />
-<hr />
 <a name="about"></a>
+<p><hr /></p>
 
 <h3>About Getting Random with SQLite</h3>
 <p>This page tests the randomness of the ORDER BY RANDOM() functionality in SQLite.</p>
@@ -147,17 +132,21 @@ href="?a=create&size=100000"> 100,000</a> rows
 <p>The test SQL call is:</p>
 <span class="pre"><?php print $random->method[1]; ?> </span>
 
-<p>A Frequency chart displays a list of unique frequencies (the number of times a row was randomly selected), 
-and the number of rows for each frequency present.
+<p>A <em>Frequency of Frequencies</em> chart displays:
+<ul>
+<li>Frequencies: the list of unique frequencies (the number of times a row was randomly selected)
+<li>Rows: the number of rows for each frequency present</li>
+</ul>
+</p>
 
-<p><a href="#top">Back to top</a></p>
+<p>This site was created with Open Source software.</p>
+<p>Find out more on Github: <a href="https://github.com/attogram/random-sqlite-test">random-sqlite-test v<?php print __RST__; ?></a></p>
+
 
 <footer>
 <p><hr /></p>
-<small>
+<p><a href="#top">Back to top</a></p>
 <p>SQL count: <?php print $random->sql_count; ?></p>
-<p>Github: <a href="https://github.com/attogram/random-sqlite-test">random-sqlite-test v<?php print __RST__; ?></a></p>
-</small>
 </footer>
 </body>
 </html>
