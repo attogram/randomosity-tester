@@ -1,7 +1,7 @@
 <?php
 // Random SQLite Test
 
-define('__RST__', '0.0.6');
+define('__RST__', '0.0.7');
 
 class utils {
     
@@ -252,26 +252,43 @@ LIMIT 1';
     }
 
     function display_distribution() {
-        $display = ''
-            . '<div class="datah" style="background-color:lightgrey; color:black; border:1px solid white;"> Frequency </div>'
-            . '<div class="datab" style="background-color:lightgrey; color:black; border:1px solid white;"> Rows      </div>'
-            . '<br />';
-        foreach( $this->get_distribution() as $dist ) {
-            $cwidth = 1 * $dist['count'];
+		
+		$dists = $this->get_distribution();
+		
+		$fratio = $cratio = 1;
+		if( $this->highest_frequency > 0 ) {
+			$fratio = (100/$this->highest_frequency);
+		}
+		if( $this->highest_count > 0 ) {
+			$cratio = (100/$this->highest_count);
+		}
+		
+        $display = '<div class="chart">'
+            . '<div class="freq header freqheader pre">Frequency </div>'
+            . '<div class="row header rowheader pre"> Rows</div>'
+            ;
+        foreach( $dists as $dist ) {
+            $cwidth = $cratio * $dist['count'];
             if( $cwidth < 1 ) { $cwidth = 1; }
-            //if( $cwidth > 500 ) { $cwidth = 500; }
+            if( $cwidth > 100 ) { $cwidth = 100; }
+			$hwidth = $fratio * $dist['frequency'];
+            if( $hwidth < 4 ) { $hwidth = 4; }
+            if( $hwidth > 100 ) { $hwidth = 100; }
 
             $display .= ''
-                . '<div class="datah">' 
-                    . str_pad(number_format($dist['frequency']), 10, ' ', STR_PAD_BOTH)
-                . ' </div>'
-                . '<div class="datab" style="width:' 
-                    . $cwidth . 'px;"> ' 
-                    . number_format($dist['count']) . '</div>'
-                . '<br />';
+                . '<div class="freq">' 
+					. '<div class="data freqdata pre" style="width:' . $hwidth . '%;">'
+					. $dist['frequency']
+					. ' </div>'
+				. '</div>'
+                . '<div class="row">'
+					. '<div class="data rowdata pre" style="width:' . $cwidth . '%;"> '
+                    . $dist['count'] 
+					. '</div>'
+				. '</div>'
                 ;
         }            
-        //$display .= '</div>';
+        $display .= '</div>';
         return $display;
     }
 

@@ -37,41 +37,68 @@ a { text-decoration:none; color:darkblue; background-color:#e8edd3; }
 a:visited { color:darkblue; background-color:#e8edd3; }
 a:hover { background-color:yellow; color:black; }
 ul { margin:0px; }
-.results {
-   white-space:pre;
-   font-family:monospace;
-   display:inline-block;
-}
-.datah {
-   display:inline-block;
-   background-color:lightgrey;
-   color:black;
-   margin:0px;
-   font-weight:bold;
-}
-.datab {
-   display:inline-block;
-   background-color:salmon;
-   color:black;
-   padding-left:10px
-   padding-right:10px;
-   margin-bottom:1px;
-   font-weight:bold;
-}
 .notice {
    background-color:lightyellow;
    font-size:90%;
    border:1px solid black;
    padding:2px;
 }
-.pre { white-space:pre; font-family:monospace; font-size:120%; }
+.pre {
+	white-space:pre; 
+	font-family:monospace;
+}
+.chart {
+	margin:0px auto;
+	width:100%;
+	font-family:monospace;
+	font-weight:bold;
+}
+.freq {
+	display:table-cell;
+	float:left;
+	width:50%;
+	text-align:right;
+	margin:1px auto;
+	overflow:visible;
+}
+.row {
+	display:table-cell;
+	float:right;
+	width:50%;
+	text-align:left;
+	margin:1px auto;
+}
+.data {
+	margin:0px;
+	padding:0px;
+	display:inline-block;
+}
+.freqdata {
+	background-color:lightblue;
+}
+.rowdata {
+	background-color:lightsalmon;
+}
+.header {
+	font-size:115%;
+}
+.freqheader {
+	background-color:darkblue;
+	color:white;
+}
+.rowheader {
+	background-color:darkred;
+	color:white;
+}
+
+
 </style>
 </head><body><a name="top"></a>
 <div style="float:right;"><a href="./#about">&nbsp;About&nbsp;</a> &nbsp; <a href="./">&nbsp;Refresh&nbsp;</a></div>
 <h1>Testing SQLite ORDER BY RANDOM()</h1>
-<div class="results"><?php 
+<div class="pre"><?php 
 
-$distribution_chart = $random->display_distribution();
+$distribution_chart = $random->display_distribution(); // also gets dist info
 $info = $random->get_test_table_info();
 
 print '<span style="font-size:130%; font-weight:bold;"><a href="./?run=1"
@@ -96,10 +123,10 @@ print '<span style="font-size:130%; font-weight:bold;"><a href="./?run=1"
    . ' / ' . number_format($random->lowest_count) 
    . ' / ' . number_format( $random->highest_count - $random->lowest_count )
    . '</b>'
-. '<br />Rows Average    : <b>' . $random->count_average . '</b>'
-
-. '<br /><br />' 
+. '<br />Rows Average    : <b>' . $random->count_average . '</b>' 
+. '</div>'
 . $distribution_chart
+. '<br clear="all" />'
 ;
 
 
@@ -107,7 +134,7 @@ $get_data  = isset($random->timer['get_data'])  ? number_format($random->timer['
 $save_data = isset($random->timer['save_data']) ? number_format($random->timer['save_data'], 10) : '0';
 $run = isset($run) ? $run : '0';
 ?>
-
+<div class="pre">
 SQL Test count: <?php print $run; ?> runs
 Avg per SQL   : <?php 
 	if( isset($run) && $run > 0 ) {
@@ -118,7 +145,6 @@ Avg per SQL   : <?php
 ?> seconds
 SQL Test time : <?php print $get_data; ?> seconds
 Data Save time: <?php print $save_data; ?> seconds
-
 </div>
 
 <p><hr /></p>
