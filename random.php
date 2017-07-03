@@ -1,7 +1,7 @@
 <?php
 // Random SQLite Test
 
-define('__RST__', '0.0.7');
+define('__RST__', '0.0.8');
 
 class utils {
     
@@ -66,14 +66,12 @@ class db extends utils {
         if( !$this->db ) { $this->init_database(); }
         $statement = $this->db->prepare($sql);
         if( !$statement ) {
-            $this->notice('Statement failed: ' . $sql);
             return FALSE;
         }
         while( $x = each($bind) ) {
             $statement->bindParam( $x[0], $x[1] );
         }    
         if( !$statement->execute() ) {
-            $this->notice('Execute failed');
             return FALSE;
         }
         $this->sql_count++;
@@ -121,7 +119,6 @@ class db extends utils {
         }
         $this->commit();
         $this->vacuum();
-        //$this->notice('Created test table with ' . $size . ' rows');
         return TRUE;
     }
 
@@ -133,9 +130,7 @@ class db extends utils {
     }
 
     function get_test_table_info() {
-        $info = $this->query_as_array('
-            SELECT count(id) AS class_size, sum(frequency) AS data_sum FROM test
-        ');
+        $info = $this->query_as_array('SELECT count(id) AS class_size, sum(frequency) AS data_sum FROM test');
         if( isset($info[0]) ) {
             return $info[0];
         }
@@ -145,20 +140,16 @@ class db extends utils {
     function delete_test_table() {
         if( $this->query_as_bool('DROP TABLE test;') ) {
             $this->vacuum();
-            //$this->notice("Dropped table 'test'");
             return TRUE;
         }
-        //$this->notice("ERROR dropping table 'test'");
         return FALSE;
     }
 
     function delete_all_data() {
         if( $this->query_as_bool('UPDATE test SET frequency = 0;') ) {
             $this->vacuum();
-            //$this->notice('DELETED all data');
             return TRUE;
         }
-        //$this->notice('ERROR deleting all data');
         return FALSE;
     }
     
@@ -169,9 +160,9 @@ class random extends db {
     var $method;
     var $table;
     var $highest_frequency;
-    var $highest_count;
+    var $highest_rows;
     var $lowest_frequency;
-    var $lowest_count;
+    var $lowest_rows;
     var $frequencies_count;
     var $frequencies_average;
     var $default_table_size;
@@ -259,8 +250,8 @@ LIMIT 1';
 		if( $this->highest_frequency > 0 ) {
 			$fratio = (100/$this->highest_frequency);
 		}
-		if( $this->highest_count > 0 ) {
-			$cratio = (100/$this->highest_count);
+		if( $this->highest_rows > 0 ) {
+			$cratio = (100/$this->highest_rows);
 		}
 		
         $display = '<div class="chart">'
@@ -316,9 +307,9 @@ LIMIT 1';
             $ctotal += $d['count'];
         }
         $this->highest_frequency = $fhigh;
-        $this->highest_count = $chigh;
+        $this->highest_rows = $chigh;
         $this->lowest_frequency = $flow;
-        $this->lowest_count = $clow;
+        $this->lowest_rows = $clow;
         $this->frequencies_count = sizeof($dist);
 
         $this->frequencies_average = round($ftotal / $this->frequencies_count, 2);

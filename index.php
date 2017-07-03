@@ -21,7 +21,7 @@ if( isset($_GET['restart']) ) {
 
 
 <!doctype html>
-<html><head><title>Testing SQLite ORDER BY RANDOM()</title>
+<html><head><title>SQLite ORDER BY RANDOM() Tester</title>
 <meta charset="utf-8" />
 <meta name="viewport" content="initial-scale=1" />
 <style>
@@ -31,7 +31,7 @@ body {
    margin:10px 20px 20px 20px; 
    font-family:sans-serif,helvetica,arial;
 }
-h1 { font-size:150%; margin:0px 0px 5px 0px; padding:0px; }
+h1 { font-size:130%; margin:0px 0px 5px 0px; padding:0px; }
 h2 { font-size:95%; font-weight:normal; margin:0px; padding:0px; }
 a { text-decoration:none; color:darkblue; background-color:#e8edd3; }
 a:visited { color:darkblue; background-color:#e8edd3; }
@@ -90,12 +90,10 @@ ul { margin:0px; }
 	background-color:darkred;
 	color:white;
 }
-
-
 </style>
 </head><body><a name="top"></a>
 <div style="float:right;"><a href="./#about">&nbsp;About&nbsp;</a> &nbsp; <a href="./">&nbsp;Refresh&nbsp;</a></div>
-<h1>Testing SQLite ORDER BY RANDOM()</h1>
+<h1>SQLite ORDER BY RANDOM() Tester</h1>
 <div class="pre"><?php 
 
 $distribution_chart = $random->display_distribution(); // also gets dist info
@@ -108,22 +106,23 @@ print '<span style="font-size:130%; font-weight:bold;"><a href="./?run=1"
 > +50  </a> <a href="./?run=100"
 > +100</a> <a href="./?run=500"
 > +500</a> <a href="./?run=1000"
->+1000</a></span><br />'
-. '<br />Table size      : <b>' . number_format(@$info['class_size']) . ' rows</b>'
-. '<br /># Data points   : <b>' . number_format(@$info['data_sum']) . '</b>'
-. '<br /># Frequencies   : <b>' . number_format($random->frequencies_count) . '</b>'
-. '<br />Freq Hi/Lo/Range: <b>' 
-   . number_format($random->highest_frequency) 
-   . ' / ' . number_format($random->lowest_frequency) 
-   . ' / ' . number_format( $random->highest_frequency - $random->lowest_frequency )
-   . '</b>'
-. '<br />Freqs Average   : <b>' . $random->frequencies_average . '</b>'
-. '<br />Rows Hi/Lo/Range: <b>' 
-   . number_format($random->highest_count) 
-   . ' / ' . number_format($random->lowest_count) 
-   . ' / ' . number_format( $random->highest_count - $random->lowest_count )
-   . '</b>'
-. '<br />Rows Average    : <b>' . $random->count_average . '</b>' 
+>+1000</a></span>'
+
+. '<br /><b>' . (@$info['class_size']) . '</b> rows with '
+	. '<b>' . (@$info['data_sum']) . '</b> data points'
+
+	. '<br />             # / Hi / Lo / Range / Avg <br />'
+	. 'Frequencies: <b>' . $random->frequencies_count
+	. '</b> / <b>' . $random->highest_frequency
+	. '</b> / <b>' . $random->lowest_frequency
+	. '</b> / <b>' . number_format( $random->highest_frequency - $random->lowest_frequency )
+	. '</b> / <b>' . $random->frequencies_average . '</b>'
+	
+	. '<br />       Rows:<b> ' . $random->frequencies_count
+	. '</b> / <b>' . $random->highest_rows
+	. '</b> / <b>' . $random->lowest_rows
+	. '</b> / <b>' . number_format( $random->highest_rows - $random->lowest_rows ) 
+	. '</b> / <b>' . $random->count_average . '</b>'
 . '</div>'
 . $distribution_chart
 . '<br clear="all" />'
@@ -134,8 +133,7 @@ $get_data  = isset($random->timer['get_data'])  ? number_format($random->timer['
 $save_data = isset($random->timer['save_data']) ? number_format($random->timer['save_data'], 10) : '0';
 $run = isset($run) ? $run : '0';
 ?>
-<div class="pre">
-SQL Test count: <?php print $run; ?> runs
+<div class="pre">SQL Test count: <?php print $run; ?> runs
 Avg per SQL   : <?php 
 	if( isset($run) && $run > 0 ) {
 		print number_format( ($get_data / $run), 10);
