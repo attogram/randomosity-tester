@@ -88,11 +88,14 @@ print '<span style="font-size:130%; font-weight:bold;"><a href="./?run=1"
    . ' / ' . number_format($random->lowest_frequency) 
    . ' / ' . number_format( $random->highest_frequency - $random->lowest_frequency )
    . '</b>'
+. '<br />Freqs Average   : <b>' . $random->frequencies_average . '</b>'
 . '<br />Rows Hi/Lo/Range: <b>' 
    . number_format($random->highest_count) 
    . ' / ' . number_format($random->lowest_count) 
    . ' / ' . number_format( $random->highest_count - $random->lowest_count )
    . '</b>'
+. '<br />Rows Average    : <b>' . $random->count_average . '</b>'
+
 . '<br /><br />' 
 . $distribution_chart
 ;

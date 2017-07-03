@@ -1,7 +1,7 @@
 <?php
 // Random SQLite Test
 
-define('__RST__', '0.0.4');
+define('__RST__', '0.0.5');
 
 class db {
 
@@ -151,6 +151,7 @@ class random extends db {
     var $lowest_frequency;
     var $lowest_count;
     var $frequencies_count;
+	var $frequencies_average;
 	var $default_table_size;
 
     function __construct() {
@@ -253,8 +254,8 @@ LIMIT 1';
         ');
         if( !$dist ) { return array(); }
         
-        $flow = $fhigh = NULL;
-        $clow = $chigh = NULL;
+        $flow = $fhigh = $ftotal = NULL;
+        $clow = $chigh = $ctotal = NULL;
         foreach( $dist as $d ) {
             if( !$flow ) { $flow = $d['frequency']; }
             if( !$clow ) { $clow = $d['count']; }
@@ -264,12 +265,18 @@ LIMIT 1';
             if( $d['count'] > $chigh ) { $chigh = $d['count']; }
             if( $d['frequency'] < $flow ) { $flow = $d['frequency']; }
             if( $d['count'] < $clow ) { $clow = $d['count']; }
+			$ftotal += $d['frequency'];
+			$ctotal += $d['count'];
         }
         $this->highest_frequency = $fhigh;
         $this->highest_count = $chigh;
         $this->lowest_frequency = $flow;
         $this->lowest_count = $clow;
         $this->frequencies_count = sizeof($dist);
+		
+		$this->frequencies_average = round($ftotal / $this->frequencies_count, 2);
+		$this->count_average = round($ctotal / $this->frequencies_count, 2);
+		
         return $dist;
     }
 
