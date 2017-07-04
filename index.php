@@ -3,24 +3,16 @@
 require_once( __DIR__.'/random.php' );
 $random = new random();
 
-if( isset($_GET['run']) ) {
-   $run = (int)$_GET['run'];
-   if( !$run || !is_int($run) || $run > 1000 ) { $run = 1; }
-   $random->add_more_random( $run );
+$display_header = (isset($_GET['h']) && $_GET['h'] == '0') ? TRUE : FALSE;
+function header_urlvar($prefix) {
+	global $display_header;
+	if( !$display_header ) {
+		return;
+	}
+	return $prefix . 'h=0';
 }
 
-if( isset($_GET['restart']) ) {
-    $restart = (int)$_GET['restart'];
-    if( !$restart || !is_int($restart) || $restart > 100000 || $restart < 1 ) { 
-        $restart = $random->default_table_size;
-    }
-    $random->delete_test_table();
-    $random->create_test_table( $restart );
-}
-?>
-
-
-<!doctype html>
+?><!doctype html>
 <html><head><title>SQLite ORDER BY RANDOM() Tester</title>
 <meta charset="utf-8" />
 <meta name="viewport" content="initial-scale=1" />
@@ -28,10 +20,10 @@ if( isset($_GET['restart']) ) {
 body {
    background-color:white; 
    color:black; 
-   margin:10px 20px 20px 20px; 
+   margin:0px 20px 20px 20px; 
    font-family:sans-serif,helvetica,arial;
 }
-h1 { font-size:130%; margin:0px 0px 5px 0px; padding:0px; }
+h1 { font-size:125%; margin:5px 0px 5px 0px; padding:0px; display:inline-block;}
 h2 { font-size:95%; font-weight:normal; margin:0px; padding:0px; }
 a { text-decoration:none; color:darkblue; background-color:#e8edd3; }
 a:visited { color:darkblue; background-color:#e8edd3; }
@@ -52,6 +44,7 @@ ul { margin:0px; }
 	width:100%;
 	font-family:monospace;
 	font-weight:bold;
+	font-size:80%;
 }
 .freq {
 	display:table-cell;
@@ -60,6 +53,7 @@ ul { margin:0px; }
 	text-align:right;
 	margin:1px auto;
 	overflow:visible;
+	background-color:#fcfcfc;
 }
 .row {
 	display:table-cell;
@@ -67,6 +61,7 @@ ul { margin:0px; }
 	width:50%;
 	text-align:left;
 	margin:1px auto;
+	background-color:#fcfcfc;
 }
 .data {
 	margin:0px;
@@ -80,7 +75,7 @@ ul { margin:0px; }
 	background-color:lightsalmon;
 }
 .header {
-	font-size:115%;
+	font-size:125%;
 }
 .freqheader {
 	background-color:darkblue;
@@ -90,53 +85,75 @@ ul { margin:0px; }
 	background-color:darkred;
 	color:white;
 }
+footer {
+	font-size:80%;
+}
 </style>
 </head><body><a name="top"></a>
-<div style="float:right;"><a href="./#about">&nbsp;About&nbsp;</a> &nbsp; <a href="./">&nbsp;Refresh&nbsp;</a></div>
+<?php $random->display_header(); ?>
+<div style="float:right; margin-top:5px;">
+ <a href="./<?php print header_urlvar('?'); ?>#about">&nbsp;About Tester&nbsp;</a>
+</div>
 <h1>SQLite ORDER BY RANDOM() Tester</h1>
+<?php
+if( isset($_GET['run']) ) {
+   $run = (int)$_GET['run'];
+   if( !$run || !is_int($run) || $run > 1000 ) { $run = 1; }
+   $random->add_more_random( $run );
+}
+
+if( isset($_GET['restart']) ) {
+    $restart = (int)$_GET['restart'];
+    if( !$restart || !is_int($restart) || $restart > 100000 || $restart < 1 ) { 
+        $restart = $random->default_table_size;
+    }
+    $random->delete_test_table();
+    $random->create_test_table( $restart );
+}
+
+?>
 <div class="pre"><?php 
 
 $distribution_chart = $random->display_distribution(); // also gets dist info
 $info = $random->get_test_table_info();
 
-print '<span style="font-size:130%; font-weight:bold;"><a href="./?run=1"
-> +1  </a> <a href="./?run=10"
-> +10  </a> <a href="./?run=25"
-> +25  </a> <a href="./?run=50"
-> +50  </a> <a href="./?run=100"
-> +100</a> <a href="./?run=500"
-> +500</a> <a href="./?run=1000"
->+1000</a></span>'
-
-. '<br /><b>' . (@$info['class_size']) . '</b> rows with '
-	. '<b>' . (@$info['data_sum']) . '</b> data points'
-
-	. '<br />             # / Hi / Lo / Range / Avg <br />'
-	. 'Frequencies: <b>' . $random->frequencies_count
-	. '</b> / <b>' . $random->highest_frequency
-	. '</b> / <b>' . $random->lowest_frequency
-	. '</b> / <b>' . number_format( $random->highest_frequency - $random->lowest_frequency )
-	. '</b> / <b>' . $random->frequencies_average . '</b>'
-	
-	. '<br />       Rows:<b> ' . $random->frequencies_count
-	. '</b> / <b>' . $random->highest_rows
-	. '</b> / <b>' . $random->lowest_rows
-	. '</b> / <b>' . number_format( $random->highest_rows - $random->lowest_rows ) 
-	. '</b> / <b>' . $random->count_average . '</b>'
+$pad_size = 6;
+print '<span style="font-size:130%; font-weight:bold;">'
+. '<a href="./?run=1' . header_urlvar('&amp;') . '">+1</a>'
+. ' <a href="./?run=10' . header_urlvar('&amp;') . '">+10</a>'
+. ' <a href="./?run=25' . header_urlvar('&amp;') . '">+25</a>'
+. ' <a href="./?run=50' . header_urlvar('&amp;') . '">+50</a>'
+. ' <a href="./?run=100' . header_urlvar('&amp;') . '">+100</a>'
+. ' <a href="./?run=250' . header_urlvar('&amp;') . '">+250</a>'
+. ' <a href="./?run=500' . header_urlvar('&amp;') . '">+500</a>'
+. ' <a href="./?run=1000' . header_urlvar('&amp;') . '">+1000</a>'
+. '</span>'
+. '<br /><b>' . number_format(@$info['class_size']) . '</b> rows, '
+	. '<b>' . number_format(@$info['data_sum']) . '</b> data points, '
+	. '<b>' . number_format($random->frequencies_count) . '</b> groups'
+	. '<br />           High   / Low    / Range  / Average<br />'
+	. 'Frequency: <b>' . str_pad(number_format($random->highest_frequency), $pad_size, ' ')
+	. '</b> / <b>' . str_pad(number_format($random->lowest_frequency), $pad_size, ' ')
+	. '</b> / <b>' . str_pad(number_format($random->highest_frequency - $random->lowest_frequency), $pad_size, ' ')
+	. '</b> / <b>' . str_pad(number_format($random->frequencies_average), $pad_size, ' ') . '</b>'
+	. '<br />     Rows:<b> ' . str_pad(number_format($random->highest_rows), $pad_size, ' ')
+	. '</b> / <b>' . str_pad(number_format($random->lowest_rows), $pad_size, ' ')
+	. '</b> / <b>' . str_pad(number_format($random->highest_rows - $random->lowest_rows), $pad_size, ' ')
+	. '</b> / <b>' . str_pad(number_format($random->rows_average), $pad_size, ' ') . '</b>'
 . '</div>'
 . $distribution_chart
 . '<br clear="all" />'
 ;
 
 
-$get_data  = isset($random->timer['get_data'])  ? number_format($random->timer['get_data'],  10) : '0';
-$save_data = isset($random->timer['save_data']) ? number_format($random->timer['save_data'], 10) : '0';
+$get_data  = isset($random->timer['get_data'])  ? number_format($random->timer['get_data'],  6) : '0';
+$save_data = isset($random->timer['save_data']) ? number_format($random->timer['save_data'], 6) : '0';
 $run = isset($run) ? $run : '0';
 ?>
-<div class="pre">SQL Test count: <?php print $run; ?> runs
+<div class="pre">SQL Test count: <?php print number_format($run); ?> runs
 Avg per SQL   : <?php 
 	if( isset($run) && $run > 0 ) {
-		print number_format( ($get_data / $run), 10);
+		print number_format( ($get_data / $run), 6);
 	} else {
 		print '0';
 	}
@@ -145,21 +162,21 @@ SQL Test time : <?php print $get_data; ?> seconds
 Data Save time: <?php print $save_data; ?> seconds
 </div>
 
-<p><hr /></p>
-
-<div class="pre">Restart test with: 
-<a 
-href="?restart=2"> 2 </a> <a 
-href="?restart=5"> 5 </a> <a 
-href="?restart=10"> 10</a> <a 
-href="?restart=25"> 25</a> <a 
-href="?restart=50"> 50</a> <a 
-href="?restart=100"> 100</a> <a 
-href="?restart=250"> 250</a> <a 
-href="?restart=500"> 500</a> <a 
-href="?restart=1000"> 1,000</a> <a 
-href="?restart=10000"> 10,000</a> <a 
-href="?restart=100000"> 100,000</a> rows
+<div class="pre">
+Restart test with: 
+<?php
+print '<a href="?restart=2"> 2 </a>'
+. ' <a href="?restart=5' . header_urlvar('&amp;') . '"> 5 </a>'
+. ' <a href="?restart=10' . header_urlvar('&amp;') . '"> 10</a>'
+. ' <a href="?restart=25' . header_urlvar('&amp;') . '"> 25</a>'
+. ' <a href="?restart=50' . header_urlvar('&amp;') . '"> 50</a>'
+. ' <a href="?restart=100' . header_urlvar('&amp;') . '">100</a>'
+. ' <a href="?restart=250' . header_urlvar('&amp;') . '">250</a>'
+. ' <a href="?restart=500' . header_urlvar('&amp;') . '">500</a>'
+. ' <a href="?restart=1000' . header_urlvar('&amp;') . '">1,000</a>'
+. ' <a href="?restart=10000' . header_urlvar('&amp;') . '">10,000</a>'
+. ' <a href="?restart=100000' . header_urlvar('&amp;') . '">100,000</a> rows';
+?>
 </div>
 
 
@@ -184,19 +201,22 @@ href="?restart=100000"> 100,000</a> rows
 </ul>
 </p>
 
-<p>This site was created with Open Source software.</p>
-<p>Find out more on Github: <a href="https://github.com/attogram/random-sqlite-test">random-sqlite-test v<?php print __RST__; ?></a></p>
+<p>This site was created with Open Source software.
+Find out more on Github: <a href="https://github.com/attogram/random-sqlite-test">random-sqlite-test v<?php print __RST__; ?></a></p>
 
 
 <footer>
 <p><hr /></p>
-<p><a href="#top">Back to top</a></p>
-<p>SQL count: <?php print $random->sql_count; ?></p>
-<p>Hosted by: <a href="//<?php print $_SERVER['SERVER_NAME']; ?>/"><?php print $_SERVER['SERVER_NAME']; ?></a></p>
-<p>Page generated in <?php 
+<p><a href="#top" style="float:right;">Back to top</a></p>
+SQL count: <?php print $random->sql_count; ?>
+<br />Page generated in <?php 
 	$random->end_timer('page');
-	print number_format($random->timer['page'], 10); ?> seconds</p>
+	print number_format($random->timer['page'], 6); ?> seconds
+<br />Hosted by: <a href="//<?php 
+print $_SERVER['SERVER_NAME']; ?>/"><?php 
+print $_SERVER['SERVER_NAME']; ?></a>
 </footer>
+<?php $random->display_footer(); ?>
 </body>
 </html>
 

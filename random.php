@@ -1,7 +1,7 @@
 <?php
 // Random SQLite Test
 
-define('__RST__', '0.0.8');
+define('__RST__', '0.0.9');
 
 class utils {
     
@@ -15,13 +15,32 @@ class utils {
         $this->timer[$name] = microtime(1);
     }
     
-    function end_timer( $name ){
+    function end_timer( $name ) {
         if( !isset($this->timer[$name]) ) {
             $this->timer[$name] = 0;
 			return;
         }
         $this->timer[$name] = microtime(1) - $this->timer[$name];		
     }
+
+	function lap_timer( $name ) {
+		if( !isset($this->timer[$name]) ) {
+			return 0;
+		}
+		return microtime(1) - $this->timer[$name];
+	}
+	
+	function display_header() {
+		if( is_readable(__DIR__.'/header.php') ) {
+			include( __DIR__.'/header.php');
+		}
+	}
+	
+	function display_footer() {
+		if( is_readable(__DIR__.'/footer.php') ) {
+			include( __DIR__.'/footer.php');
+		}
+	}
 
 }
 
@@ -44,8 +63,16 @@ class db extends utils {
 
     function query_as_array( $sql, $bind=array() ) {
         if( !$this->db ) { $this->init_database(); }
+		if( !$this->db ) { return array(); }
         $statement = $this->db->prepare($sql);
         if( !$statement ) {
+			$err = $this->db->errorInfo();
+			if( isset($err[2]) && $err[2] == 'no such table: test' ) {
+				//$this->notice('ERROR: test table not found');
+				$this->create_tables();
+				return array();
+			}
+			$this->notice('EROR: SQLite prepare failed: ' . $sql);
             return array();
         }
         while( $x = each($bind) ) {
@@ -64,6 +91,7 @@ class db extends utils {
 
     function query_as_bool( $sql, $bind=array() ) {
         if( !$this->db ) { $this->init_database(); }
+		if( !$this->db ) { return FALSE; }
         $statement = $this->db->prepare($sql);
         if( !$statement ) {
             return FALSE;
@@ -111,22 +139,14 @@ class db extends utils {
         }
         $this->begin_transaction();
         for ($i = 1; $i <= $size; $i++) {
-
             if( !$this->query_as_bool("INSERT INTO test (id) VALUES ('$i')") ) {
-                $this->notice("ERROR creating rows");
+                $this->notice('ERROR creating rows');
                 return FALSE;
             }
         }
         $this->commit();
         $this->vacuum();
         return TRUE;
-    }
-
-    function get_test_table() {
-        if( $this->query_as_array('SELECT * FROM test ORDER BY id') ) {
-            return $table;
-        }
-        return array();
     }
 
     function get_test_table_info() {
@@ -152,19 +172,26 @@ class db extends utils {
         }
         return FALSE;
     }
-    
+
+	function create_tables() {
+		$r = $this->create_test_table($this->default_table_size);
+		//$r = $this->query_as_bool($this->history_table);
+		$this->notice('Welcome!  New Test Database Created.  Reload the page to start testing.');
+	}
 }
 
 class random extends db {
 
     var $method;
     var $table;
+	var $history_table;
     var $highest_frequency;
     var $highest_rows;
     var $lowest_frequency;
     var $lowest_rows;
     var $frequencies_count;
     var $frequencies_average;
+	var $rows_average;
     var $default_table_size;
 
     function __construct() {
@@ -177,15 +204,27 @@ class random extends db {
 
         $this->default_table_size = 100;
         
-        $this->method[1] = 'SELECT id
+        $this->method[1] = 
+'SELECT id
 FROM test
 ORDER BY RANDOM()
 LIMIT 1';
-        $this->table[1] = "CREATE TABLE 'test' (
+
+        $this->table[1] = 
+"CREATE TABLE 'test' (
   'id' INTEGER PRIMARY KEY,
   'frequency' INTEGER DEFAULT '0'
 )";
 
+		$this->history_table = 
+"CREATE TABLE 'history' (
+  'history_id' INTEGER PRIMARY KEY,
+  'table_size' INTEGER,
+  'id' INTEGER,
+  'frequency' INTEGER DEFAULT '0',
+  CONSTRAINT hu UNIQUE (table_size, id)
+)";
+		
         $this->query_as_bool('PRAGMA synchronous=OFF;'); // do not wait for disk writes
 
         $this->query_as_bool('PRAGMA count_changes=OFF;'); // do not do callback to count changes per query
@@ -201,7 +240,7 @@ LIMIT 1';
         for ($i = 1; $i <= $size; $i++) {
             $hit = $this->query_as_array( $this->method[1] );
             if( !$hit || !isset($hit[0]['id']) ) {
-                $this->notice('ERROR selecting from test table');
+                $this->notice('ERROR: Database busy.');
                 return FALSE;
             }
             $hits[] = $hit[0]['id'];
@@ -269,12 +308,12 @@ LIMIT 1';
             $display .= ''
                 . '<div class="freq">' 
 					. '<div class="data freqdata pre" style="width:' . $hwidth . '%;">'
-					. $dist['frequency']
+					. number_format($dist['frequency'])
 					. ' </div>'
 				. '</div>'
                 . '<div class="row">'
 					. '<div class="data rowdata pre" style="width:' . $cwidth . '%;"> '
-                    . $dist['count'] 
+                    . number_format($dist['count'])
 					. '</div>'
 				. '</div>'
                 ;
@@ -313,7 +352,7 @@ LIMIT 1';
         $this->frequencies_count = sizeof($dist);
 
         $this->frequencies_average = round($ftotal / $this->frequencies_count, 2);
-        $this->count_average = round($ctotal / $this->frequencies_count, 2);
+        $this->rows_average = round($ctotal / $this->frequencies_count, 2);
 
         return $dist;
     }
