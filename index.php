@@ -92,19 +92,20 @@ footer {
 </head><body><a name="top"></a>
 <?php $random->display_header(); ?>
 <div style="float:right; margin-top:5px;">
+ <a href="./<?php print header_urlvar('?'); ?>">&nbsp;Refresh&nbsp;</a>
  <a href="./<?php print header_urlvar('?'); ?>#about">&nbsp;About Tester&nbsp;</a>
 </div>
 <h1>SQLite ORDER BY RANDOM() Tester</h1>
 <?php
 if( isset($_GET['run']) ) {
    $run = (int)$_GET['run'];
-   if( !$run || !is_int($run) || $run > 1000 ) { $run = 1; }
+   if( !$run || !is_int($run) ) { $run = 1; }
    $random->add_more_random( $run );
 }
 
 if( isset($_GET['restart']) ) {
     $restart = (int)$_GET['restart'];
-    if( !$restart || !is_int($restart) || $restart > 100000 || $restart < 1 ) { 
+    if( !$restart || !is_int($restart) || $restart > 1000000 || $restart < 1 ) { 
         $restart = $random->default_table_size;
     }
     $random->delete_test_table();

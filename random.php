@@ -1,7 +1,7 @@
 <?php
-// Random SQLite Test
+// SQLite ORDER BY RANDOM() Tester
 
-define('__RST__', '0.0.9');
+define('__RST__', '0.0.11');
 
 class utils {
     
@@ -132,11 +132,14 @@ class db extends utils {
 
     function create_test_table( $size='' ) {
         if( !$size ) { $size = 10; }
-        if( $size > 100000 ) { $size = 100000; }
+        if( $size > 1000000 ) { $size = 1000000; }
+		$this->start_timer('get_data');
         if ( !$this->query_as_bool( $this->table[1] ) ) {
             $this->notice('ERROR creating table: ' . $this->table[1]);
             return FALSE;
         }
+		$this->end_timer('get_data');
+		$this->start_timer('save_data');		
         $this->begin_transaction();
         for ($i = 1; $i <= $size; $i++) {
             if( !$this->query_as_bool("INSERT INTO test (id) VALUES ('$i')") ) {
@@ -146,6 +149,7 @@ class db extends utils {
         }
         $this->commit();
         $this->vacuum();
+		$this->end_timer('save_data');
         return TRUE;
     }
 
@@ -193,16 +197,19 @@ class random extends db {
     var $frequencies_average;
 	var $rows_average;
     var $default_table_size;
+	var $time_limit;
 
     function __construct() {
 
         $this->start_timer('page');
-
-        set_time_limit(30);
+		
+		$this->time_limit = 1.42; // Time Limitation for test runs, in seconds
+		
+        set_time_limit( round($this->time_limit + 10) );
 
         $this->database_name = __DIR__ . '/db/test.sqlite';
 
-        $this->default_table_size = 100;
+        $this->default_table_size = 1000;
         
         $this->method[1] = 
 'SELECT id
@@ -215,7 +222,7 @@ LIMIT 1';
   'id' INTEGER PRIMARY KEY,
   'frequency' INTEGER DEFAULT '0'
 )";
-
+/*
 		$this->history_table = 
 "CREATE TABLE 'history' (
   'history_id' INTEGER PRIMARY KEY,
@@ -224,7 +231,7 @@ LIMIT 1';
   'frequency' INTEGER DEFAULT '0',
   CONSTRAINT hu UNIQUE (table_size, id)
 )";
-		
+*/	
         $this->query_as_bool('PRAGMA synchronous=OFF;'); // do not wait for disk writes
 
         $this->query_as_bool('PRAGMA count_changes=OFF;'); // do not do callback to count changes per query
@@ -233,7 +240,8 @@ LIMIT 1';
 
     function add_more_random( $size=1 ) {
         if( !$size || !is_int($size) ) { $size = 1; }
-        if( $size > 1000 ) { $size = 1000; }
+        //if( $size > 1000 ) { $size = 1000; }
+        if( $size > 10000 ) { $size = 10000; }
         $hits = array();
 
         $this->start_timer('get_data');
@@ -244,9 +252,15 @@ LIMIT 1';
                 return FALSE;
             }
             $hits[] = $hit[0]['id'];
+			if( $this->lap_timer('page') > $this->time_limit ) {
+				$this->notice('TIME LIMIT REACHED after ' . $i . ' tests.');
+				$this->end_timer('get_data');
+				goto save_data;
+			}
         }
         $this->end_timer('get_data');
 
+		save_data:
         $this->start_timer('save_data');
         $freqs = array(); // array of id=>frequency 
         foreach( $hits as $hit ) {
