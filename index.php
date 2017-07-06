@@ -23,7 +23,7 @@ body {
    margin:0px 20px 20px 20px; 
    font-family:sans-serif,helvetica,arial;
 }
-h1 { font-size:125%; margin:5px 0px 5px 0px; padding:0px; display:inline-block;}
+h1 { font-size:115%; margin:5px 0px 5px 0px; padding:0px; display:inline-block;}
 h2 { font-size:95%; font-weight:normal; margin:0px; padding:0px; }
 a { text-decoration:none; color:darkblue; background-color:#e8edd3; }
 a:visited { color:darkblue; background-color:#e8edd3; }
@@ -32,8 +32,10 @@ ul { margin:0px; }
 .notice {
    background-color:lightyellow;
    font-size:90%;
-   border:1px solid black;
-   padding:2px;
+   border:1px solid grey;
+   margin:0px 0px 4px 0px;
+   padding:4px;
+   display:inline-block;
 }
 .pre {
 	white-space:pre; 
@@ -98,14 +100,14 @@ footer {
 <h1>SQLite ORDER BY RANDOM() Tester</h1>
 <?php
 if( isset($_GET['run']) ) {
-   $run = (int)$_GET['run'];
-   if( !$run || !is_int($run) ) { $run = 1; }
-   $random->add_more_random( $run );
+   $random->run = (int)$_GET['run'];
+   if( !$random->run || !is_int($random->run) ) { $random->run = 1; }
+   $random->add_more_random( $random->run );
 }
 
 if( isset($_GET['restart']) ) {
     $restart = (int)$_GET['restart'];
-    if( !$restart || !is_int($restart) || $restart > 1000000 || $restart < 1 ) { 
+    if( !$restart || !is_int($restart) || $restart > $random->max_table_size || $restart < 1 ) {
         $restart = $random->default_table_size;
     }
     $random->delete_test_table();
@@ -122,12 +124,10 @@ $pad_size = 6;
 print '<span style="font-size:130%; font-weight:bold;">'
 . '<a href="./?run=1' . header_urlvar('&amp;') . '">+1</a>'
 . ' <a href="./?run=10' . header_urlvar('&amp;') . '">+10</a>'
-. ' <a href="./?run=25' . header_urlvar('&amp;') . '">+25</a>'
-. ' <a href="./?run=50' . header_urlvar('&amp;') . '">+50</a>'
 . ' <a href="./?run=100' . header_urlvar('&amp;') . '">+100</a>'
-. ' <a href="./?run=250' . header_urlvar('&amp;') . '">+250</a>'
-. ' <a href="./?run=500' . header_urlvar('&amp;') . '">+500</a>'
-. ' <a href="./?run=1000' . header_urlvar('&amp;') . '">+1000</a>'
+. ' <a href="./?run=1000' . header_urlvar('&amp;') . '">+1K</a>'
+. ' <a href="./?run=10000' . header_urlvar('&amp;') . '">+10K</a>'
+. ' <a href="./?run=999999999' . header_urlvar('&amp;') . '">+MAX</a>'
 . '</span>'
 . '<br /><b>' . number_format(@$info['class_size']) . '</b> rows, '
 	. '<b>' . number_format(@$info['data_sum']) . '</b> data points, '
@@ -149,34 +149,37 @@ print '<span style="font-size:130%; font-weight:bold;">'
 
 $get_data  = isset($random->timer['get_data'])  ? number_format($random->timer['get_data'],  6) : '0';
 $save_data = isset($random->timer['save_data']) ? number_format($random->timer['save_data'], 6) : '0';
-$run = isset($run) ? $run : '0';
+$run = isset($radom->run) ? $random->run : '0';
 ?>
-<div class="pre">SQL Test count: <?php print number_format($run); ?> runs
-Avg per SQL   : <?php 
-	if( isset($run) && $run > 0 ) {
-		print number_format( ($get_data / $run), 6);
+<div class="pre">Test runs: <?php print number_format($random->run); ?> 
+Avg run  : <?php 
+	if( isset($random->run) && $random->run > 0 ) {
+		print number_format( ($get_data / $random->run), 6);
 	} else {
 		print '0';
 	}
 ?> seconds
-SQL Test time : <?php print $get_data; ?> seconds
-Data Save time: <?php print $save_data; ?> seconds
+Test time: <?php print $get_data; ?> seconds
+Data Save: <?php print $save_data; ?> seconds
 </div>
 
 <div class="pre">
 Restart test with: 
 <?php
-print '<a href="?restart=2"> 2 </a>'
+print '<a href="?restart=1' . header_urlvar('&amp;') . '"> 1 </a>'
+. ' <a href="?restart=2' . header_urlvar('&amp;') . '"> 2 </a>'
+. ' <a href="?restart=3' . header_urlvar('&amp;') . '"> 3 </a>'
+. ' <a href="?restart=4' . header_urlvar('&amp;') . '"> 4 </a>'
 . ' <a href="?restart=5' . header_urlvar('&amp;') . '"> 5 </a>'
 . ' <a href="?restart=10' . header_urlvar('&amp;') . '"> 10</a>'
-. ' <a href="?restart=25' . header_urlvar('&amp;') . '"> 25</a>'
 . ' <a href="?restart=50' . header_urlvar('&amp;') . '"> 50</a>'
 . ' <a href="?restart=100' . header_urlvar('&amp;') . '">100</a>'
-. ' <a href="?restart=250' . header_urlvar('&amp;') . '">250</a>'
 . ' <a href="?restart=500' . header_urlvar('&amp;') . '">500</a>'
-. ' <a href="?restart=1000' . header_urlvar('&amp;') . '">1,000</a>'
-. ' <a href="?restart=10000' . header_urlvar('&amp;') . '">10,000</a>'
-. ' <a href="?restart=100000' . header_urlvar('&amp;') . '">100,000</a> rows';
+. ' <a href="?restart=1000' . header_urlvar('&amp;') . '">1K</a>'
+. ' <a href="?restart=5000' . header_urlvar('&amp;') . '">5K</a>'
+. ' <a href="?restart=10000' . header_urlvar('&amp;') . '">10K</a>'
+. ' <a href="?restart=50000' . header_urlvar('&amp;') . '">50K</a>'
+. ' <a href="?restart=100000' . header_urlvar('&amp;') . '">100K</a> rows';
 ?>
 </div>
 
@@ -190,10 +193,16 @@ print '<a href="?restart=2"> 2 </a>'
 <p>The test table is defined as:</p>
 <span class="pre"><?php print $random->table[1]; ?> </span>
 
-<p>Add more test data by clicking a <span style="background-color:#e8edd3;">&nbsp;+&nbsp;</span> number button above.</p>
+<p>Test tables may have 1 to <?php print number_format($random->max_table_size); ?> rows.</p>
 
-<p>Each data point is individually generated via the SQL call:</p>
+<p>Data points are individually generated via the SQL call:</p>
 <span class="pre"><?php print $random->method[1]; ?> </span>
+
+<p>Add data by clicking a 
+<span style="background-color:#e8edd3;">&nbsp;+&nbsp;</span> 
+number button to start a test run.</p>
+
+<p>Each test run is limted to ~<?php print $random->time_limit; ?> seconds.</p>
 
 <p>A <em>Frequency of Frequencies</em> chart displays:
 <ul>

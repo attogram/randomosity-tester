@@ -1,7 +1,7 @@
 <?php
 // SQLite ORDER BY RANDOM() Tester
 
-define('__RST__', '0.0.11');
+define('__RST__', '0.0.12');
 
 class utils {
     
@@ -131,8 +131,8 @@ class db extends utils {
     }
 
     function create_test_table( $size='' ) {
-        if( !$size ) { $size = 10; }
-        if( $size > 1000000 ) { $size = 1000000; }
+        if( !$size ) { $size = $this->default_table_size; }
+        if( $size > $this->max_table_size ) { $size = $this->max_table_size; }
 		$this->start_timer('get_data');
         if ( !$this->query_as_bool( $this->table[1] ) ) {
             $this->notice('ERROR creating table: ' . $this->table[1]);
@@ -197,7 +197,9 @@ class random extends db {
     var $frequencies_average;
 	var $rows_average;
     var $default_table_size;
+	var $max_table_size;
 	var $time_limit;
+	var $run; // how many tests to run
 
     function __construct() {
 
@@ -210,6 +212,7 @@ class random extends db {
         $this->database_name = __DIR__ . '/db/test.sqlite';
 
         $this->default_table_size = 1000;
+		$this->max_table_size     = 100000;
         
         $this->method[1] = 
 'SELECT id
@@ -240,8 +243,7 @@ LIMIT 1';
 
     function add_more_random( $size=1 ) {
         if( !$size || !is_int($size) ) { $size = 1; }
-        //if( $size > 1000 ) { $size = 1000; }
-        if( $size > 10000 ) { $size = 10000; }
+
         $hits = array();
 
         $this->start_timer('get_data');
@@ -251,14 +253,17 @@ LIMIT 1';
                 $this->notice('ERROR: Database busy.');
                 return FALSE;
             }
-            $hits[] = $hit[0]['id'];
+            $hits[] = $hit[0]['id']; 
+
 			if( $this->lap_timer('page') > $this->time_limit ) {
-				$this->notice('TIME LIMIT REACHED after ' . $i . ' tests.');
+				$this->notice('TIME LIMIT REACHED: +' . number_format($i) . ' data');
+				$this->run = $i;
 				$this->end_timer('get_data');
 				goto save_data;
 			}
         }
         $this->end_timer('get_data');
+		$this->notice('OK: +' . number_format($i-1) . ' data');
 
 		save_data:
         $this->start_timer('save_data');
