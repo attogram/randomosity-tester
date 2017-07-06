@@ -1,5 +1,8 @@
 # random-sqlite-test
-Testing SQLite ORDER BY RANDOM()
+SQLite ORDER BY RANDOM() Tester
+
+![](https://github.com/attogram/random-sqlite-test/raw/master/logo.png "")
+
 
 # Demo
 http://www.fosiper.com/random/sqlite/
