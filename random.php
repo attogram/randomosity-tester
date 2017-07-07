@@ -1,7 +1,7 @@
 <?php
-// Random Tester - class
+// Random Tester
 
-define('__RST__', '0.1.0');
+define('__RT__', '0.1.1');
 
 class utils {
     
@@ -388,7 +388,9 @@ class random extends random_db {
     var $default_generator;
 
     var $restart; // restart: # of rows to create in new test table, or FALSE
-    var $time_limit; // test time limit, in seconds    
+    var $time_limit; // test time limit, in seconds  
+
+	var $show_header; // site header
 
     function __construct() {
 		
@@ -453,6 +455,9 @@ class random extends random_db {
         } else {
 			$this->random_max = $this->restart;
 		}
+		
+		$this->show_header = (isset($_GET['h']) && $_GET['h'] == '1') ? FALSE : TRUE;
+
     } // end function set_parameters()
 
 	function display_add_data() {
@@ -470,7 +475,7 @@ class random extends random_db {
 	function display_chart() {
 		$pad_size = 6;
 		return ''
-		. '<br /><b>' . number_format($this->rows_count) . '</b> rows, '
+		. '<br /><b>' . number_format($this->random_max) . '</b> rows, '
 		. '<b>' . number_format($this->frequency_sum) . '</b> data points, '
 		. '<b>' . number_format($this->frequencies_count) . '</b> groups'
 		. '<br />           High   / Low    / Range  / Average<br />'
@@ -533,7 +538,14 @@ class random extends random_db {
 			$vars = array();
 		}
 		$url = '?gen=' . $this->generator;
+		
+		if( !array_key_exists('h', $vars) ) {
+			if( !$this->show_header ) {
+				$url .= '&amp;h=1';
+			}
+		}
 		while( list($name,$val) = each($vars) ) {
+			if( $name == 'h' && $val == 0 ) { continue; }
 			$url .= '&amp;' . urlencode($name) . '=' . urlencode($val);
 		}
 		if( $hash ) {
