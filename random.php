@@ -475,9 +475,9 @@ class random extends random_db {
 	function display_chart() {
 		$pad_size = 6;
 		return ''
-		. '<br /><b>' . number_format($this->random_max) . '</b> rows, '
-		. '<b>' . number_format($this->frequency_sum) . '</b> data points, '
-		. '<b>' . number_format($this->frequencies_count) . '</b> groups'
+		. '<br />range: <b>' . $this->random_min . '-' . number_format($this->random_max) . '</b>, '
+		. 'data points: <b>' . number_format($this->frequency_sum) . '</b>, '
+		. 'groups: <b>' . number_format($this->frequencies_count) . '</b>'
 		. '<br />           High   / Low    / Range  / Average<br />'
 		. 'Frequency: <b>' . str_pad(number_format($this->frequency_max), $pad_size, ' ')
 		. '</b> / <b>' . str_pad(number_format($this->frequency_min), $pad_size, ' ')
