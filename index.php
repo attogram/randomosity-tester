@@ -158,12 +158,12 @@ Random Generator Method:
 <?php
 
 while( list($id,$gen) = each($random->generators) ) {
-	if( $id == $random->generator ) {
-		print '<span style="border:1px solid red; padding:2px;">' . $gen['name'] . '</span>';
-	} else {
-		print '<a href="' . $random->url(array('gen'=>$id, 'restart'=>$random->random_max)) . '">' . $gen['name'] . '</a>';
-	}
-	print ' ';
+    if( $id == $random->generator ) {
+        print '<span style="border:1px solid red; padding:2px;">' . $gen['name'] . '</span>';
+    } else {
+        print '<a href="' . $random->url(array('gen'=>$id, 'restart'=>$random->random_max)) . '">' . $gen['name'] . '</a>';
+    }
+    print ' ';
 } ?>
 
 
@@ -211,8 +211,8 @@ Find out more on Github: <a href="https://github.com/attogram/random-sqlite-test
 
 PHP Version: <?php print phpversion(); ?> 
 <br />SQLite Version: <?php 
-	$version = $random->query_as_array('SELECT SQLITE_VERSION() AS version;');
-	isset($version[0]['version']) ? print $version[0]['version'] : print '?';
+    $version = $random->query_as_array('SELECT SQLITE_VERSION() AS version;');
+    isset($version[0]['version']) ? print $version[0]['version'] : print '?';
  ?> 
 <br/>SQL count: <?php print $random->sql_count; ?>
 <br />Page generated in <?php 
