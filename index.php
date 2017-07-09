@@ -5,7 +5,7 @@
 require_once( __DIR__.'/random.php' );
 $random = new random();
 
-$page_title = @$random->generators[$random->generator]['name'] . ' Tester';
+$page_title = @$random->generators[$random->generator]['name'] . ' Randomosity Tester';
 
 ?><!doctype html>
 <html><head><title><?php print $page_title; ?></title>
@@ -175,21 +175,29 @@ while( list($id,$gen) = each($random->generators) ) {
 <a name="about"></a>
 <p><hr /></p>
 
-<h3>About Getting Random with SQLite</h3>
-<p>This page tests the randomness of the ORDER BY RANDOM() functionality in SQLite.</p>
+<h3>About the Randomosity Tester</h3>
+<p>This page tests the frequency distribution and timing of random number generation via these methods:
+<ul>
+<li>SQLite ORDER BY RANDOM()</li>
+<li>PHP rand()</li>
+<li>PHP mt_rand()</li>
+<li>PHP random_int()</li>
+</ul>
+</p>
 
-<p>The test table is defined as:</p>
+<p>Random number results are stored in a test table.
+The test table is defined as:</p>
 <span class="pre"><?php print $random->test_table; ?> </span>
 
-<p>Generated random numbers may between <?php print number_format($random->random_min); ?> 
-and <?php print number_format($random->random_max); ?>.</p>
+<p>The range of random numbers is currently set to <?php print number_format($random->random_min); ?> 
+to <?php print number_format($random->random_max); ?>.</p>
 
-<p>Data points are individually generated via the SQL call:</p>
+<p>For SQLite tests, results are individually generated via the SQL call:</p>
 <span class="pre"><?php 
 print $random->generators['sqlite_order_by_random']['sql']; 
 ?> </span>
 
-<p>Add data by clicking a 
+<p>Generate more random numbers by clicking a 
 <span style="background-color:#e8edd3;">&nbsp;+&nbsp;</span> 
 number button to start a test run.</p>
 
@@ -203,7 +211,7 @@ number button to start a test run.</p>
 </p>
 
 <p>This site was created with Open Source software.
-Find out more on Github: <a href="https://github.com/attogram/randomosity-tester">random-sqlite-test v<?php print __RT__; ?></a></p>
+Find out more on Github: <a href="https://github.com/attogram/randomosity-tester">randomosity-tester v<?php print __RT__; ?></a></p>
 
 <p><a href="#top">Back to top</a></p>
 
