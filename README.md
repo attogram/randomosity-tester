@@ -1,4 +1,4 @@
-# Random tester
+# Randomosity Tester
 Test the frequency distribution and timing of random number generation via:
 * SQLite ORDER BY RANDOM()
 * PHP rand()
