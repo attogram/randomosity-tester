@@ -1,11 +1,13 @@
-# random-sqlite-test
-SQLite ORDER BY RANDOM() Tester
-
-![](https://github.com/attogram/random-sqlite-test/raw/master/logo.png "")
-
+# Random tester
+Test the frequency distribution and timing of random number generation via:
+* SQLite ORDER BY RANDOM()
+* PHP rand()
+* PHP mt_rand()
+* PHP random_int()
 
 # Demo
-http://www.fosiper.com/random/sqlite/
+[![](https://github.com/attogram/random-sqlite-test/raw/master/logo.png "")](http://www.fosiper.com/random/)
+http://www.fosiper.com/random/
 
 # Github
 https://github.com/attogram/random-sqlite-test
