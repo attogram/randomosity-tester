@@ -6,11 +6,11 @@ Test the frequency distribution and timing of random number generation via:
 * PHP random_int()
 
 # Demo
-[![](https://github.com/attogram/random-sqlite-test/raw/master/logo.png "")](http://fosiper.com/random/)
+[![](https://github.com/attogram/randomosity-tester/raw/master/logo.png "")](http://fosiper.com/random/)
 http://fosiper.com/random/
 
 # Github
-https://github.com/attogram/random-sqlite-test
+https://github.com/attogram/randomosity-tester
 
 # License
 MIT License
