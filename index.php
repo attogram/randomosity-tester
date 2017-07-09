@@ -1,5 +1,6 @@
 <?php
-// Random Tester - page
+// Randomosity Tester
+// page
 
 require_once( __DIR__.'/random.php' );
 $random = new random();
@@ -202,7 +203,7 @@ number button to start a test run.</p>
 </p>
 
 <p>This site was created with Open Source software.
-Find out more on Github: <a href="https://github.com/attogram/random-sqlite-test">random-sqlite-test v<?php print __RT__; ?></a></p>
+Find out more on Github: <a href="https://github.com/attogram/randomosity-tester">random-sqlite-test v<?php print __RT__; ?></a></p>
 
 <p><a href="#top">Back to top</a></p>
 
