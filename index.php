@@ -13,9 +13,9 @@ $page_title = @$random->generators[$random->generator]['name'] . ' Randomosity T
 <meta name="viewport" content="initial-scale=1" />
 <style>
 body {
-   background-color:white; 
-   color:black; 
-   margin:0px 20px 20px 20px; 
+   background-color:white;
+   color:black;
+   margin:0px 20px 20px 20px;
    font-family:sans-serif,helvetica,arial;
 }
 h1 { font-size:115%; margin:5px 0px 5px 0px; padding:0px; display:inline-block;}
@@ -33,7 +33,7 @@ ul { margin:0px; }
    display:inline-block;
 }
 .pre {
-    white-space:pre; 
+    white-space:pre;
     font-family:monospace;
 }
 .chart {
@@ -121,8 +121,8 @@ $get_data  = isset($random->timer['get_data'])  ? number_format($random->timer['
 $save_data = isset($random->timer['save_data']) ? number_format($random->timer['save_data'], 6) : '0';
 $run = isset($radom->run) ? $random->run : '0';
 ?>
-<div class="pre">Test runs: <?php print number_format($random->run); ?> 
-Avg run  : <?php 
+<div class="pre">Test runs: <?php print number_format($random->run); ?>
+Avg run  : <?php
     if( isset($random->run) && $random->run > 0 ) {
         print number_format( ($get_data / $random->run), 6);
     } else {
@@ -189,16 +189,24 @@ while( list($id,$gen) = each($random->generators) ) {
 The test table is defined as:</p>
 <span class="pre"><?php print $random->test_table; ?> </span>
 
-<p>The range of random numbers is currently set to <?php print number_format($random->random_min); ?> 
-to <?php print number_format($random->random_max); ?>.</p>
+<p>
+The table is initialized by creating all rows with frequency = 0.
+The number of rows in the table is defined by the range setting.
+The current test is set to use range: <?php print number_format($random->random_min); ?>
+to <?php print number_format($random->random_max); ?>.
+</p>
+
+<p>For each random number chosen, the table is updated via:</p>
+<span class="pre">UPDATE test
+SET frequency = frequency + 1
+WHERE id = :random_number</span>
+
 
 <p>For SQLite tests, results are individually generated via the SQL call:</p>
-<span class="pre"><?php 
-print $random->generators['sqlite_order_by_random']['sql']; 
-?> </span>
+<span class="pre"><?php print $random->generators['sqlite_order_by_random']['sql']; ?> </span>
 
-<p>Generate more random numbers by clicking a 
-<span style="background-color:#e8edd3;">&nbsp;+&nbsp;</span> 
+<p>Generate more random numbers by clicking a
+<span style="background-color:#e8edd3;">&nbsp;+&nbsp;</span>
 number button to start a test run.</p>
 
 <p>Each test run is limted to ~<?php print $random->time_limit; ?> seconds.</p>
@@ -218,13 +226,13 @@ Find out more on Github: <a href="https://github.com/attogram/randomosity-tester
 <footer>
 <p><hr /></p>
 
-PHP Version: <?php print phpversion(); ?> 
-<br />SQLite Version: <?php 
+PHP Version: <?php print phpversion(); ?>
+<br />SQLite Version: <?php
     $version = $random->query_as_array('SELECT SQLITE_VERSION() AS version;');
     isset($version[0]['version']) ? print $version[0]['version'] : print '?';
- ?> 
+ ?>
 <br/>SQL count: <?php print $random->sql_count; ?>
-<br />Page generated in <?php 
+<br />Page generated in <?php
     $random->end_timer('page');
     print number_format($random->timer['page'], 6); ?> seconds
 <br />Hosted by: <a href="//<?php print $_SERVER['SERVER_NAME']; ?>/"><?php print $_SERVER['SERVER_NAME']; ?></a>

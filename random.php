@@ -1,10 +1,10 @@
 <?php
 // Randomosity Tester
-    
-define('__RT__', '0.2.1');
+
+define('__RT__', '0.2.2');
 
 class utils {
-    
+
     var $timer;
 
     function notice( $msg ) {
@@ -14,13 +14,13 @@ class utils {
     function start_timer( $name ) {
         $this->timer[$name] = microtime(1);
     }
-    
+
     function end_timer( $name ) {
         if( !isset($this->timer[$name]) ) {
             $this->timer[$name] = 0;
             return;
         }
-        $this->timer[$name] = microtime(1) - $this->timer[$name];        
+        $this->timer[$name] = microtime(1) - $this->timer[$name];
     }
 
     function lap_timer( $name ) {
@@ -29,24 +29,24 @@ class utils {
         }
         return microtime(1) - $this->timer[$name];
     }
-    
+
     function display_header() {
         if( is_readable(__DIR__.'/header.php') ) {
             include( __DIR__.'/header.php');
         }
     }
-    
+
     function display_footer() {
         if( is_readable(__DIR__.'/footer.php') ) {
             include( __DIR__.'/footer.php');
         }
     }
 
-    function is_good_number($n='') { 
+    function is_good_number($n='') {
         if ( preg_match('/^[0-9]*$/', $n )) { return TRUE; }
         return FALSE;
     }
-    
+
 }
 
 class db extends utils {
@@ -54,7 +54,7 @@ class db extends utils {
     var $db;
     var $database_name;
     var $sql_count;
-        
+
     function init_database() {
         if( !in_array('sqlite', PDO::getAvailableDrivers() ) ) {
             $this->notice('ERROR: init_database: SQLite PDO Driver not installed');
@@ -68,7 +68,7 @@ class db extends utils {
             $this->db = FALSE;
             return FALSE;
         }
-        
+
         if( !$this->tables_exist() ) {
             //$this->notice('ERROR: init_database: tables do not exist');
             if( !$this->create_tables() ) {
@@ -76,7 +76,7 @@ class db extends utils {
                 return FALSE;
             }
         }
-        return TRUE;        
+        return TRUE;
     } // end function init_database()
 
     function query_as_array( $sql, $bind=array() ) {
@@ -88,7 +88,7 @@ class db extends utils {
         }
         while( $x = each($bind) ) {
             $statement->bindParam( $x[0], $x[1]);
-        }    
+        }
         if( !$statement->execute() ) {
             return array();
         }
@@ -109,7 +109,7 @@ class db extends utils {
         }
         while( $x = each($bind) ) {
             $statement->bindParam( $x[0], $x[1] );
-        }    
+        }
         if( !$statement->execute() ) {
             return FALSE;
         }
@@ -152,37 +152,37 @@ class random_db extends db {
     var $random_max;  // max value for generated random number
     var $random_max_default;
 
-    var $rows_count; 
-    var $rows_sum; 
+    var $rows_count;
+    var $rows_sum;
     var $rows_avg;
     var $rows_min;
     var $rows_max;
     var $rows_range;
-    
-    var $frequency_count; 
+
+    var $frequency_count;
     var $frequency_sum; // Sum of data points in test table
     var $frequency_avg;
     var $frequency_min;
     var $frequency_max;
     var $frequency_range;
-    
+
     var $frequencies_count;
-    
+
     var $distribution; // array of Frequency=>Rows of test table
-    
+
     function __construct() {
-        
+
         $this->database_name = __DIR__ . '/db/test.sqlite';
-        
+
         $this->random_min = 1;
         $this->random_max_default = 1000;
-        
+
         $this->test_table = "CREATE TABLE 'test' (\n"
             . "  'id' INTEGER PRIMARY KEY,\n"
             . "  'frequency' INTEGER DEFAULT '0'\n);";
-        
+
     }
-    
+
     function tables_exist() {
         $tables = $this->query_as_array('SELECT name, sql FROM sqlite_master WHERE type = "table"');
         if( !$tables ) {
@@ -199,17 +199,17 @@ class random_db extends db {
         return FALSE;
     }
 
-    function create_tables() {        
+    function create_tables() {
 
         $this->start_timer('get_data');
         if ( !$this->query_as_bool( $this->test_table ) ) {
             $this->notice('create_tables: CREATE FAILED: errorinfo: ' . print_r($this->db->errorInfo(),1));
-            $this->end_timer('get_data');            
+            $this->end_timer('get_data');
             return FALSE;
         }
         $this->end_timer('get_data');
 
-        $this->start_timer('save_data'); 
+        $this->start_timer('save_data');
         if( !$this->random_max ) {
             $this->random_max = $this->random_max_default;
         }
@@ -223,10 +223,10 @@ class random_db extends db {
         $this->commit();
         $this->vacuum();
         $this->end_timer('save_data');
-        $this->notice('RESTARTED: ' . $this->generator . ', range ' 
+        $this->notice('RESTARTED: ' . $this->generator . ', range '
             . $this->random_min . '-' . number_format($this->random_max));
         return TRUE;
-        
+
     } // end function create_table
 
     function delete_test_table() {
@@ -243,7 +243,7 @@ class random_db extends db {
         if( !$size || !isset($size[0]['table_size']) ) {
             return $this->table_size = 0;
         }
-        return $this->table_size = $size[0]['table_size'];        
+        return $this->table_size = $size[0]['table_size'];
     }
 
     function get_results() {
@@ -274,12 +274,12 @@ class random_db extends db {
             GROUP BY frequency
             ORDER BY frequency DESC
         ');
-        if( !$dist ) { 
+        if( !$dist ) {
             return FALSE;
         }
 
         $this->distribution = $dist;
-        
+
         $flow = $fhigh = $ftotal = NULL;
         $clow = $chigh = $ctotal = NULL;
         foreach( $dist as $d ) {
@@ -310,13 +310,13 @@ class random_db extends db {
             return;
         }
 
-        $hits = array();        
+        $hits = array();
         $this->start_timer('get_data');
-        
+
         //$this->notice('generator=' . $this->generator . ' random min=' . $this->random_min . ' max=' . $this->random_max);
 
         for ($i = 1; $i <= $this->run; $i++) {
-          
+
             switch( $this->generator ) {
 
                 case 'php_rand':
@@ -328,7 +328,7 @@ class random_db extends db {
                     break;
 
                 case 'sqlite_order_by_random':
-                default: 
+                default:
                     $hit = $this->query_as_array(
                         $this->generators['sqlite_order_by_random']['sql']
                     );
@@ -339,7 +339,7 @@ class random_db extends db {
                     $hit = $hit[0]['id'];
             } // end switch on generator
 
-            $hits[] = $hit; 
+            $hits[] = $hit;
 
             if( $this->lap_timer('page') > $this->time_limit ) {
                 $this->notice('TIMEOUT');
@@ -354,9 +354,9 @@ class random_db extends db {
         $this->notice('+' . number_format($i-1) . ' data');
 
         $this->start_timer('save_data');
-        $freqs = array(); // array of id=>frequency 
+        $freqs = array(); // array of id=>frequency
         foreach( $hits as $hit ) {
-            if( isset($freqs[$hit]) ) { 
+            if( isset($freqs[$hit]) ) {
                 $freqs[$hit] +=1;
                 continue;
             }
@@ -382,31 +382,31 @@ class random_db extends db {
 class random extends random_db {
 
     var $run; // how many tests to run
-    
+
     var $generators; // array of Random Number Generators
     var $generator; // Active generator
     var $default_generator;
 
     var $restart; // restart: # of rows to create in new test table, or FALSE
-    var $time_limit; // test time limit, in seconds  
+    var $time_limit; // test time limit, in seconds
 
     var $show_header; // site header
 
     function __construct() {
-        
+
         $this->start_timer('page');
 
         parent::__construct();
         //$this->notice('random::__construct');
 
         // Defaults, Setups
-        
+
         $this->time_limit = 1.42; // Time Limitation for test runs, in seconds
         set_time_limit( round($this->time_limit + 10) ); // total page load time limit, in seconds
-        
-        
+
+
         $this->generators = array();
-        
+
         $this->generators['sqlite_order_by_random'] = array(
             'name' => 'SQLite ORDER BY RANDOM()',
             'sql' => "SELECT id\nFROM test\nORDER BY RANDOM()\nLIMIT 1;",
@@ -427,7 +427,7 @@ class random extends random_db {
 
 
         $this->default_generator = 'sqlite_order_by_random';
-        
+
         $this->set_parameters();
 
         $this->get_results();
@@ -435,7 +435,7 @@ class random extends random_db {
     } // end __construct()
 
     function set_parameters() {
-        
+
         // Number of test runs
         $this->run = isset($_GET['run']) ? $_GET['run'] : 0;
         if( !$this->is_good_number($this->run) ) {
@@ -455,7 +455,7 @@ class random extends random_db {
         } else {
             $this->random_max = $this->restart;
         }
-        
+
         $this->show_header = (isset($_GET['h']) && $_GET['h'] == '1') ? FALSE : TRUE;
 
     } // end function set_parameters()
@@ -469,7 +469,7 @@ class random extends random_db {
         . ' <a href="' . $this->url(array('run'=>1000)) . '">+1K</a>'
         . ' <a href="' . $this->url(array('run'=>10000)) . '">+10K</a>'
         . ' <a href="' . $this->url(array('run'=>999999999)) . '">+MAX</a>'
-        . '</span>';        
+        . '</span>';
     }
 
     function display_chart() {
@@ -491,7 +491,7 @@ class random extends random_db {
     }
 
     function display_distribution() {
-        
+
         $fratio = $cratio = 1;
         if( $this->frequency_max > 0 ) {
             $fratio = (100/$this->frequency_max);
@@ -499,7 +499,7 @@ class random extends random_db {
         if( $this->rows_max > 0 ) {
             $cratio = (100/$this->rows_max);
         }
-        
+
         $display = '<div class="chart">'
             . '<div class="freq header freqheader pre">Frequency </div>'
             . '<div class="row header rowheader pre"> Rows</div>'
@@ -517,7 +517,7 @@ class random extends random_db {
             if( $hwidth > 100 ) { $hwidth = 100; }
 
             $display .= ''
-                . '<div class="freq">' 
+                . '<div class="freq">'
                     . '<div class="data freqdata pre" style="width:' . $hwidth . '%;">'
                     . number_format($dist['frequency'])
                     . ' </div>'
@@ -528,13 +528,13 @@ class random extends random_db {
                     . '</div>'
                 . '</div>'
                 ;
-        }            
+        }
         $display .= '</div>';
         return $display;
     }
 
     function url( $vars=array(), $hash='' ) {
-        if( !is_array($vars) ) { 
+        if( !is_array($vars) ) {
             $vars = array();
         }
         $url = './';
@@ -560,4 +560,3 @@ class random extends random_db {
     } // end function url()
 
 } // end class
-    
