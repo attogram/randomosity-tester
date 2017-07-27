@@ -192,8 +192,8 @@ The test table is defined as:</p>
 <p>
 The table is initialized by creating all rows with frequency = 0.
 The number of rows in the table is defined by the range setting.
-The current test is set to use range: <?php print number_format($random->random_min); ?>
-to <?php print number_format($random->random_max); ?>.
+The current test is set to use range: 
+<?php print number_format($random->random_min); ?> to <?php print number_format($random->random_max); ?>.
 </p>
 
 <p>For each random number chosen, the table is updated via:</p>
